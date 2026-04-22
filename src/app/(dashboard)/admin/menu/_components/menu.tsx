@@ -15,6 +15,7 @@ import { Menu } from '@/validations/menu-validation';
 import Image from 'next/image';
 import { cn, convertIDR } from '@/lib/utils';
 import { HEADER_TABLE_MENU } from '@/constants/menu-constant';
+import DialogCreateMenu from './dialog-create-menu';
 
 export default function MenuManagement() {
   const supabase = createClient();
@@ -71,7 +72,7 @@ export default function MenuManagement() {
         currentLimit * (currentPage - 1) + index + 1,
         <div className="flex items-center gap-2">
           <Image
-            src={menu.image_url as string}
+            src={(menu.image_url as string).trim()}
             alt={menu.name}
             width={40}
             height={40}
@@ -152,6 +153,7 @@ export default function MenuManagement() {
             <DialogTrigger asChild>
               <Button variant="outline">Create</Button>
             </DialogTrigger>
+            <DialogCreateMenu refetch={refetch} />
           </Dialog>
         </div>
       </div>
