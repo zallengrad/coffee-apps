@@ -9,7 +9,7 @@ export async function uploadFile(
   file: File,
   prevPath?: string,
 ) {
-  const supabase = await createClient();
+  const supabase = await createClient({ isAdmin: true });
 
   const newPath = `${path}/${Date.now()}-${file.name}`;
 
@@ -45,7 +45,7 @@ export async function uploadFile(
 }
 
 export async function deleteFile(bucket: string, path: string) {
-  const supabase = await createClient();
+  const supabase = await createClient({ isAdmin: true });
 
   const { error } = await supabase.storage.from(bucket).remove([path]);
   if (error) {
