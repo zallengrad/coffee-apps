@@ -11,76 +11,63 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Form } from '@/components/ui/form';
-import { ROLE_LIST } from '@/constants/auth-constants';
+import { AVAILABILITY_LIST } from '@/constants/auth-constant';
+import { CATEGORY_LIST } from '@/constants/menu-constant';
+import { STATUS_TABLE_LIST } from '@/constants/table-constant';
 import { Preview } from '@/types/general';
 import { Loader2 } from 'lucide-react';
 import { FormEvent } from 'react';
 import { FieldValues, Path, UseFormReturn } from 'react-hook-form';
 
-export default function FormUser<T extends FieldValues>({
+export default function FormTable<T extends FieldValues>({
   form,
   onSubmit,
   isLoading,
   type,
-  preview,
-  setPreview,
 }: {
   form: UseFormReturn<T>;
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
   isLoading: boolean;
   type: 'Create' | 'Update';
-  preview?: Preview;
-  setPreview?: (preview: Preview) => void;
 }) {
   return (
-    <DialogContent className="sm:max-w-[425px]">
+    <DialogContent className="sm:max-w-[425px] max-h-[90vh]">
       <Form {...form}>
         <DialogHeader>
-          <DialogTitle>{type} User</DialogTitle>
+          <DialogTitle>{type} Table</DialogTitle>
           <DialogDescription>
-            {type === 'Create'
-              ? 'Register a new user'
-              : 'Make changes user here'}
+            {type === 'Create' ? 'Add a new table' : 'Make changes table here'}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={onSubmit} className="space-y-4">
-          <FormInput
-            form={form}
-            name={'name' as Path<T>}
-            label="Name"
-            placeholder="Insert your name"
-          />
-          {type === 'Create' && (
+          <div className="space-y-4 max-h-[50vh] px-1 overflow-y-auto">
             <FormInput
               form={form}
-              name={'email' as Path<T>}
-              label="Email"
-              placeholder="Insert email here"
-              type="email"
+              name={'name' as Path<T>}
+              label="Name"
+              placeholder="Insert name here"
             />
-          )}
-          <FormImage
-            form={form}
-            name={'avatar_url' as Path<T>}
-            label="Avatar"
-            preview={preview}
-            setPreview={setPreview}
-          />
-          <FormSelect
-            form={form}
-            name={'role' as Path<T>}
-            label="Role"
-            selectItem={ROLE_LIST}
-          />
-          {type === 'Create' && (
             <FormInput
               form={form}
-              name={'password' as Path<T>}
-              label="Password"
-              placeholder="******"
-              type="password"
+              name={'description' as Path<T>}
+              label="Description"
+              placeholder="Insert description here"
+              type="textarea"
             />
-          )}
+            <FormInput
+              form={form}
+              name={'capacity' as Path<T>}
+              label="Capacity"
+              placeholder="Insert capacity here"
+              type="number"
+            />
+            <FormSelect
+              form={form}
+              name={'status' as Path<T>}
+              label="Status"
+              selectItem={STATUS_TABLE_LIST}
+            />
+          </div>
           <DialogFooter>
             <DialogClose asChild>
               <Button variant="outline">Cancel</Button>

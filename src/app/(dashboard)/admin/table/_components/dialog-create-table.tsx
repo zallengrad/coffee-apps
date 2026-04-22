@@ -1,65 +1,57 @@
-import {
-  INITIAL_CREATE_USER_FORM,
-  INITIAL_STATE_CREATE_USER,
-} from '@/constants/auth-constants';
-import {
-  CreateUserForm,
-  createUserSchema,
-} from '@/validations/auth-validaton';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { startTransition, useActionState, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { createUser } from '../action';
+import { createTable } from '../action';
 import { toast } from 'sonner';
-import { Preview } from '@/types/general';
-import FormUser from './form-table';
+import { TableForm, tableFormSchema } from '@/validations/table-validation';
+import { INITIAL_STATE_TABLE, INITIAL_TABLE } from '@/constants/table-constant';
+import FormTable from './form-table';
 
-export default function DialogCreateUser({ refetch }: { refetch: () => void }) {
-  const form = useForm<CreateUserForm>({
-    resolver: zodResolver(createUserSchema),
-    defaultValues: INITIAL_CREATE_USER_FORM,
+export default function DialogCreateTable({
+  refetch,
+}: {
+  refetch: () => void;
+}) {
+  const form = useForm<TableForm>({
+    resolver: zodResolver(tableFormSchema),
+    defaultValues: INITIAL_TABLE,
   });
 
-  const [createUserState, createUserAction, isPendingCreateUser] =
-    useActionState(createUser, INITIAL_STATE_CREATE_USER);
-
-  const [preview, setPreview] = useState<Preview | undefined>(undefined);
+  const [createTableState, createTableAction, isPendingCreateTable] =
+    useActionState(createTable, INITIAL_STATE_TABLE);
 
   const onSubmit = form.handleSubmit((data) => {
     const formData = new FormData();
     Object.entries(data).forEach(([key, value]) => {
-      formData.append(key, key === 'avatar_url' ? preview!.file ?? '' : value);
+      formData.append(key, value);
     });
 
     startTransition(() => {
-      createUserAction(formData);
+      createTableAction(formData);
     });
   });
 
   useEffect(() => {
-    if (createUserState?.status === 'error') {
-      toast.error('Create User Failed', {
-        description: createUserState.errors?._form?.[0],
+    if (createTableState?.status === 'error') {
+      toast.error('Create Table Failed', {
+        description: createTableState.errors?._form?.[0],
       });
     }
 
-    if (createUserState?.status === 'success') {
-      toast.success('Create User Success');
+    if (createTableState?.status === 'success') {
+      toast.success('Create Table Success');
       form.reset();
-      setPreview(undefined);
       document.querySelector<HTMLButtonElement>('[data-state="open"]')?.click();
       refetch();
     }
-  }, [createUserState]);
+  }, [createTableState]);
 
   return (
-    <FormUser
+    <FormTable
       form={form}
       onSubmit={onSubmit}
-      isLoading={isPendingCreateUser}
+      isLoading={isPendingCreateTable}
       type="Create"
-      preview={preview}
-      setPreview={setPreview}
     />
   );
 }
