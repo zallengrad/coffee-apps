@@ -21,9 +21,20 @@ export default function AuthStoreProvider({
 
   useEffect(() => {
     const supabase = createClient();
-    supabase.auth.getUser().then(({ data: { user } }) => {
+    supabase.auth.getUser().then(async ({ data: { user } }) => {
+      if (!user) return;
       useAuthStore.getState().setUser(user);
-      // We don't overwrite profile here if it is already handled synchronously on server SSR
+
+      // Re-fetch profile from profiles table to get latest avatar_url
+      const { data: dbProfile } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single();
+
+      if (dbProfile) {
+        useAuthStore.getState().setProfile(dbProfile as Profile);
+      }
     });
   }, []);
 
