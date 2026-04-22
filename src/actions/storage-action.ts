@@ -38,7 +38,7 @@ export async function uploadFile(
   return {
     status: 'success',
     data: {
-      url: `${environment.SUPABASE_URL}/storage/v1/object/public/${bucket}/${newPath}`,
+      url: `${environment.SUPABASE_URL.trim()}/storage/v1/object/public/${bucket}/${newPath}`,
       path: newPath,
     },
   };
