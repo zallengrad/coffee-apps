@@ -1,102 +1,81 @@
-import {
-  INITIAL_CREATE_USER_FORM,
-  INITIAL_STATE_CREATE_USER,
-  INITIAL_STATE_UPDATE_USER,
-} from '@/constants/auth-constants';
-import {
-  CreateUserForm,
-  createUserSchema,
-  UpdateUserForm,
-  updateUserSchema,
-} from '@/validations/auth-validaton';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { startTransition, useActionState, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { createUser, updateUser } from '../action';
+import { updateTable } from '../action';
 import { toast } from 'sonner';
 import { Preview } from '@/types/general';
-import FormUser from './form-table';
-import { Profile } from '@/types/auth';
+import FormTable from './form-table';
 import { Dialog } from '@radix-ui/react-dialog';
+import { Menu, MenuForm, menuFormSchema } from '@/validations/menu-validation';
+import { INITIAL_STATE_MENU } from '@/constants/menu-constant';
+import {
+  Table,
+  TableForm,
+  tableFormSchema,
+} from '@/validations/table-validation';
+import { INITIAL_STATE_TABLE } from '@/constants/table-constant';
 
-export default function DialogUpdateUser({
+export default function DialogUpdateTable({
   refetch,
   currentData,
   open,
   handleChangeAction,
 }: {
   refetch: () => void;
-  currentData?: Profile;
+  currentData?: Table;
   open?: boolean;
   handleChangeAction?: (open: boolean) => void;
 }) {
-  const form = useForm<UpdateUserForm>({
-    resolver: zodResolver(updateUserSchema),
+  const form = useForm<TableForm>({
+    resolver: zodResolver(tableFormSchema),
   });
 
-  const [updateUserState, updateUserAction, isPendingUpdateUser] =
-    useActionState(updateUser, INITIAL_STATE_UPDATE_USER);
-
-  const [preview, setPreview] = useState<Preview | undefined>(undefined);
+  const [updateTableState, updateTableAction, isPendingUpdateTable] =
+    useActionState(updateTable, INITIAL_STATE_TABLE);
 
   const onSubmit = form.handleSubmit((data) => {
     const formData = new FormData();
-    if (currentData?.avatar_url !== data.avatar_url) {
-      Object.entries(data).forEach(([key, value]) => {
-        formData.append(
-          key,
-          key === 'avatar_url' ? preview!.file ?? '' : value,
-        );
-      });
-      formData.append('old_avatar_url', currentData?.avatar_url ?? '');
-    } else {
-      Object.entries(data).forEach(([Key, value]) => {
-        formData.append(Key, value);
-      });
-    }
+    Object.entries(data).forEach(([Key, value]) => {
+      formData.append(Key, value);
+    });
     formData.append('id', currentData?.id ?? '');
 
     startTransition(() => {
-      updateUserAction(formData);
+      updateTableAction(formData);
     });
   });
 
   useEffect(() => {
-    if (updateUserState?.status === 'error') {
-      toast.error('Update User Failed', {
-        description: updateUserState.errors?._form?.[0],
+    if (updateTableState?.status === 'error') {
+      toast.error('Update Table Failed', {
+        description: updateTableState.errors?._form?.[0],
       });
     }
 
-    if (updateUserState?.status === 'success') {
-      toast.success('Update User Success');
+    if (updateTableState?.status === 'success') {
+      toast.success('Update Table Success');
       form.reset();
       handleChangeAction?.(false);
       refetch();
     }
-  }, [updateUserState]);
+  }, [updateTableState]);
 
   useEffect(() => {
     if (currentData) {
-      form.setValue('name', currentData.name as string);
-      form.setValue('role', currentData.role as string);
-      form.setValue('avatar_url', currentData.avatar_url as string);
-      setPreview({
-        file: new File([], currentData.avatar_url as string),
-        displayUrl: currentData.avatar_url as string,
-      });
+      form.setValue('name', currentData.name);
+      form.setValue('description', currentData.description);
+      form.setValue('capacity', currentData.capacity.toString());
+      form.setValue('status', currentData.status);
     }
   }, [currentData]);
 
   return (
     <Dialog open={open} onOpenChange={handleChangeAction}>
-      <FormUser
+      <FormTable
         form={form}
         onSubmit={onSubmit}
-        isLoading={isPendingUpdateUser}
+        isLoading={isPendingUpdateTable}
         type="Update"
-        preview={preview}
-        setPreview={setPreview}
       />
     </Dialog>
   );
