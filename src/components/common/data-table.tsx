@@ -105,7 +105,7 @@ export default function DataTable({
             </SelectContent>
           </Select>
         </div>
-        {totalPages > 1 && (
+        {totalPages > 0 && (
           <div className="flex justify-end">
             <PaginationDataTable
               currentPage={currentPage}
